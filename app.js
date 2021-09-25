@@ -7,18 +7,17 @@ let human = new Human("", 0, "");
 let gamePoints = 0;
 let rounds = 1;
 
-function getGameStatus(){
-  const currentPoints = human.points + robot.points;
-  const gameStatus = rules.checkGameStatus(gamePoints, currentPoints);
-  if(gameStatus === 'nextRound'){
+function getGameStatus() {
+  const gameStatus = rules.checkGameStatus(
+    human.points,
+    robot.points,
+    gamePoints
+  );
+  if (gameStatus === "nextRound") {
     rounds += 1;
     startGame();
   } else {
-    if(human.points < robot.points){
-      console.log('Robot wins game :/');
-    } else {
-      console.log(`${human.name} wins game :D`);
-    }
+    rules.checkWinner(human.points, robot.points);
     process.exit();
   }
 }
@@ -26,7 +25,7 @@ function getGameStatus(){
 function getWinner() {
   robot.selection = robot.botSelection();
   console.log(
-    `${human.name} selected ${human.selection}, Robot selected ${robot.selection}`
+    `\n ${human.name} selected ${human.selection}, Robot selected ${robot.selection}.`
   );
   const winner = rules.getResult(human.selection, robot.selection);
   switch (winner) {
@@ -37,12 +36,14 @@ function getWinner() {
       human.points += 1;
       break;
   }
-  console.log(`${human.name} ${human.points} : Robot ${robot.points}`);
+  console.log(`\n ${human.name} ${human.points} : Robot ${robot.points}`);
   getGameStatus();
 }
 
 function startGame() {
-  process.stdout.write(`Round ${rounds}: Choose [r]ock, [p]aper or [s]cissors: `);
+  process.stdout.write(
+    `\n Round ${rounds}: Choose [r]ock, [p]aper or [s]cissors: `
+  );
   process.stdin.once("data", function (input) {
     human.selection = input.toString().trim();
     console.clear();
@@ -50,18 +51,17 @@ function startGame() {
     if (isValid) {
       getWinner();
     } else {
-      console.log("Choice is not valid. Please make a new choice");
       startGame();
     }
   });
 }
 
-function getPoints(){
-  process.stdout.write("How many points to get the game? (enter and odd number) ");
+function getPoints() {
+  process.stdout.write("\n How many points to get the game? ");
   process.stdin.once("data", function (data) {
     gamePoints = parseInt(data);
     const isValid = rules.checkPoints(gamePoints);
-    if(isValid){
+    if (isValid) {
       startGame();
     } else {
       getPoints();
@@ -71,8 +71,10 @@ function getPoints(){
 
 process.stdin.once("data", function (data) {
   human.name = data.toString().trim();
-  console.log(`Welcome ${human.name}!`);
+  console.log(`\n Welcome ${human.name}!`);
   getPoints();
 });
 
-process.stdout.write("Welcome to rock, paper and scissors game. Please Write your name: ");
+process.stdout.write(
+  "\n Welcome to rock, paper and scissors game. Please Write your name: "
+);
